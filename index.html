@@ -765,6 +765,57 @@ html,body{
   font-size: clamp(0.82rem, 3.5vw, 0.98rem);
   white-space: nowrap;
 }
+/* ---- Botón revelar foto (vibración) ---- */
+.foto-card-final { position: relative; }
+
+.foto-reveal-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  border: none;
+  cursor: pointer;
+  padding: 9px 14px;
+  border-radius: 40px;
+  font-family: var(--f-texto);
+  font-weight: 700;
+  font-size: clamp(0.6rem, 2.8vw, 0.8rem);
+  color: #3a2408;
+  background: linear-gradient(45deg, #e8a91d, var(--sol));
+  box-shadow: 0 6px 18px rgba(255,201,60,.55);
+  white-space: nowrap;
+  animation: vibrarBtn 0.5s linear infinite;
+}
+
+@keyframes vibrarBtn {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  20% { transform: translate(calc(-50% - 2px), -50%) rotate(-3deg); }
+  40% { transform: translate(calc(-50% + 2px), -50%) rotate(3deg); }
+  60% { transform: translate(calc(-50% - 2px), -50%) rotate(-2deg); }
+  80% { transform: translate(calc(-50% + 2px), -50%) rotate(2deg); }
+}
+
+.foto-card-final.nitida .foto-reveal-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+
+/* ---- Mensaje entre el nombre y las fotos ---- */
+.mensaje-materializar {
+  z-index: 10;
+  max-width: 92%;
+  margin: 0 auto;
+  padding: 10px 16px;
+  text-align: center;
+  font-family: var(--f-mano);
+  font-weight: 700;
+  font-size: clamp(0.95rem, 4vw, 1.2rem);
+  line-height: 1.4;
+  color: #ffe9c9;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.55);
+  background: rgba(255,201,60,0.08);
 
 </style>
 </head>
@@ -1065,18 +1116,24 @@ html,body{
     </div>
 
     <!-- Contenido final organizado -->
-    <div class="contenido-final-doris" id="contenidoFinalDoris">
-      <div class="titulo-particulas-box"></div>
+<div class="contenido-final-doris" id="contenidoFinalDoris">
+  <div class="titulo-particulas-box"></div>
 
-      <!-- Dos fotos cuadradas en el medio -->
-      <div class="fotos-container">
-        <div class="foto-card-final" id="foto1">
-          <img id="imgFoto1" alt="Recuerdo 1">
-        </div>
-        <div class="foto-card-final" id="foto2">
-          <img id="imgFoto2" alt="Recuerdo 2">
-        </div>
-      </div>
+  <p class="mensaje-materializar">Sé que actualmente no existe una foto juntos, pero quise materializar un par que espero sean de tu agrado.</p>
+
+  <!-- Dos fotos cuadradas en el medio -->
+  <div class="fotos-container">
+
+  <div class="foto-card-final" id="foto1">
+    <img id="imgFoto1" alt="Recuerdo 1">
+    <button class="foto-reveal-btn" type="button">HAZ CLICK AQUÍ</button>
+  </div>
+  <div class="foto-card-final" id="foto2">
+    <img id="imgFoto2" alt="Recuerdo 2">
+    <button class="foto-reveal-btn" type="button">HAZ CLICK AQUÍ</button>
+  </div>
+</div>
+
 
       <div class="final-msg-box">
         <p id="finalTexto"></p>
@@ -1112,14 +1169,14 @@ const CFG = {
   cancionArtista: "Doris",
 
   /* --- ESCENA 1 --- */
-  introTitulo: "Para una personita muy especial…",
+  introTitulo: "Para una persona muy especial…",
 
   /* --- ESCENA 2 --- */
   tituloRamo: "Ten tu ramo, Doris",
 
   /* --- ESCENA 4 (árbol) --- */
   arbolTitulo: "Flores amarillas para ti, Doris:",
-  arbolTexto: "Si pudiera elegir un lugar seguro, sería a tu lado.\n\nCuanto más tiempo paso contigo, más cuenta me doy de lo bonita que es la vida con alguien como tú.",
+  arbolTexto: "Espero te guste este presente virtual que fue hecho con mucha dedicación.\n\n Ninguno de los 2 nos buscamos pero al final coincidimos que es lo mas importante.",
   arbolFirma: "--Con mucho cariño 🌻",
 
   /* --- ESCENA 5 (fuegos) --- */
@@ -1138,7 +1195,7 @@ const CFG = {
   razones: [
     "Porque cada gesto tuyo habla por si solo.",
     "Porque tu sonrisa es única.",
-    "Porque en tu comapañia hay plenitud.",
+    "Porque en tu compañia hay plenitud.",
     "Porque apareciste sin buscarlo.",
     "Porque puedo ser yo mismo contigo.",
     "Porque contigo la distancia se siente corta.",
