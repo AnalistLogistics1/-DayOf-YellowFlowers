@@ -836,10 +836,95 @@ html,body{
   color: #ffe9c9;
   text-shadow: 0 2px 8px rgba(0,0,0,0.55);
   background: rgba(255,201,60,0.08);
+/* ================= PANTALLA DE SEGURIDAD ================= */
+#lockScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at center, #3b185f 0%, #1a0b2e 70%, #0d0518 100%);
+  padding: 6vw;
+}
+#lockScreen.oculto { display: none; }
+
+.lock-card {
+  width: min(90vw, 380px);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,201,60,0.3);
+  border-radius: 24px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+}
+.lock-emoji { font-size: 46px; margin-bottom: 10px; }
+.lock-title {
+  font-family: var(--f-mano); font-weight: 700;
+  font-size: clamp(1.4rem, 6vw, 1.9rem);
+  color: #ffe27a; margin-bottom: 18px;
+  text-shadow: 0 0 14px rgba(255,201,60,0.5);
+}
+.lock-input {
+  width: 100%; height: 50px;
+  border: 2px solid rgba(255,201,60,0.4);
+  border-radius: 40px;
+  background: rgba(0,0,0,0.35);
+  color: #fff; text-align: center;
+  font-size: 1.2rem; font-family: var(--f-texto);
+  outline: none; margin-bottom: 16px;
+}
+.lock-input:focus { border-color: var(--sol); }
+.lock-btn {
+  padding: 13px 30px; border: none; border-radius: 40px;
+  font-family: var(--f-texto); font-weight: 700;
+  font-size: 1.05rem; cursor: pointer;
+  color: #3a2408;
+  background: linear-gradient(45deg, #e8a91d, var(--sol));
+  box-shadow: 0 8px 22px rgba(255,201,60,0.45);
+}
+.lock-btn:active { transform: scale(.96); }
+.lock-error {
+  margin-top: 14px; min-height: 20px;
+  color: #ff8080; font-weight: 600;
+  font-size: .95rem;
+}
+
+/* Overlay video error */
+#errorOverlay {
+  position: fixed; inset: 0; z-index: 10000;
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; background: #000; padding: 5vw;
+}
+#errorOverlay.activo { display: flex; }
+#errorVideo {
+  width: min(92vw, 500px);
+  max-height: 65vh;
+  border-radius: 14px;
+  object-fit: contain;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.7);
+}
 
 </style>
 </head>
 <body>
+   <!-- ================= PANTALLA DE SEGURIDAD ================= -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-emoji">🌻</div>
+    <h2 class="lock-title">Ingrese la Palabra Mágica</h2>
+    <input type="text" id="lockInput" class="lock-input" placeholder="Palabra mágica..." autocomplete="off">
+    <button id="lockBtn" class="lock-btn">Ingresar ✨</button>
+    <p id="lockError" class="lock-error"></p>
+  </div>
+</div>
+
+<!-- Overlay del video de error -->
+<div id="errorOverlay">
+  <video id="errorVideo" playsinline loop>
+    <source src="error.mp4" type="video/mp4">
+  </video>
+  <button id="btnReintentar" class="lock-btn">Reintentar palabra mágica 🔁</button>
+</div>
+
 <div id="progreso"><i id="progresoBarra"></i></div>
 <div id="hud">
   <button class="hud-btn" id="hudBack" aria-label="Escena anterior">‹</button>
@@ -2327,10 +2412,66 @@ MOD.sc12 = (function(){
 
 
 /* =====================================================================
-   16) ARRANQUE
+   16. ARRANQUE  (con seguridad de palabra mágica)
    ===================================================================== */
-MOD.sc1.entrar();
 document.addEventListener("gesturestart", e => e.preventDefault());
+
+const PALABRA_MAGICA = "11";
+let experienciaIniciada = false;
+
+const lockScreen   = document.getElementById("lockScreen");
+const lockInput    = document.getElementById("lockInput");
+const lockBtn      = document.getElementById("lockBtn");
+const lockError    = document.getElementById("lockError");
+const errorOverlay = document.getElementById("errorOverlay");
+const errorVideo   = document.getElementById("errorVideo");
+const btnReintentar= document.getElementById("btnReintentar");
+
+function iniciarExperiencia(){
+  lockScreen.classList.add("oculto");
+  if(!experienciaIniciada){
+    experienciaIniciada = true;
+    MOD.sc1.entrar();
+  }
+}
+
+function mostrarError(){
+  errorOverlay.classList.add("activo");
+  try {
+    errorVideo.currentTime = 0;
+    errorVideo.muted = false;
+    errorVideo.volume = 1;
+    errorVideo.play().catch(()=>{});
+  } catch(e){}
+}
+
+function ocultarError(){
+  errorOverlay.classList.remove("activo");
+  try { errorVideo.pause(); } catch(e){}
+}
+
+function validarPalabra(){
+  const valor = String(lockInput.value || "").trim();
+  if(valor === PALABRA_MAGICA){
+    lockError.textContent = "";
+    iniciarExperiencia();
+  } else {
+    lockError.textContent = "Palabra incorrecta…";
+    mostrarError();
+  }
+}
+
+lockBtn.addEventListener("click", validarPalabra);
+lockInput.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter"){ e.preventDefault(); validarPalabra(); }
+});
+
+btnReintentar.addEventListener("click", ()=>{
+  ocultarError();
+  lockInput.value = "";
+  lockInput.focus();
+});
+
 
 // ==========================================================
 // CONFIGURACIÓN DE ANALÍTICA PARA LA SEGUNDA PÁGINA (D2 y E2)
